@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prepa 11 UDG - Will vs. Going To Challenge</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            user-select: none;
+        }
+
+        .font-game {
+            font-family: 'Fredoka', cursive;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-glow {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-glow:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-glow:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-6px, 4px) rotate(-1deg); }
+            40% { transform: translate(6px, -4px) rotate(1deg); }
+            60% { transform: translate(-4px, -2px) rotate(-0.5deg); }
+            80% { transform: translate(4px, 2px) rotate(0.5deg); }
+        }
+
+        .animate-shake {
+            animation: shake 0.4s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.6)); }
+            50% { filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.9)); }
+        }
+
+        .glow-title {
+            animation: pulseGlow 2.5s infinite;
+        }
+
+        #gameCanvas {
+            touch-action: none;
+            image-rendering: auto;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 flex flex-col justify-between overflow-x-hidden">
+
+    <!-- TOP HEADER BAR -->
+    <header class="w-full bg-slate-900/90 border-b border-slate-700/80 px-4 py-3 sticky top-0 z-30 shadow-lg backdrop-blur-md">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-500 text-slate-900 font-black px-3 py-1 rounded-lg text-sm tracking-wider uppercase shadow-md flex items-center gap-1.5">
+                    <i class="fa-solid font-bold fa-graduation-cap"></i> UDG
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold font-game tracking-wide text-white leading-tight flex items-center gap-2">
+                        PREPA 11 ENGLISH CHALLENGE
+                    </h1>
+                    <p class="text-xs text-amber-400 font-medium">Grammar Topic: <span class="text-white font-semibold">Will vs. Going To</span></p>
+                </div>
+            </div>
+
+            <!-- Header Controls & Status -->
+            <div class="flex items-center space-x-3">
+                <div id="scoreBadge" class="bg-slate-800 border border-slate-600 px-3.5 py-1.5 rounded-xl flex items-center space-x-2 shadow-inner">
+                    <i class="fa-solid fa-star text-amber-400"></i>
+                    <span class="text-xs text-slate-300">Score: <strong id="scoreText" class="text-sm text-amber-300">0 / 400</strong></span>
+                </div>
+
+                <button id="audioToggleBtn" onclick="toggleAudioMute()" class="p-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl text-slate-200 transition" title="Toggle Sound / Silenciar">
+                    <i id="audioIcon" class="fa-solid fa-volume-high text-amber-400"></i>
+                </button>
+
+                <button onclick="toggleSettingsModal()" class="p-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl text-slate-200 transition" title="Teacher Audio Settings / Configuración de Sonido">
+                    <i class="fa-solid fa-sliders text-sky-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-2 sm:p-4 relative">
+        <div class="w-full max-w-5xl bg-slate-900 rounded-2xl overflow-hidden border-2 border-slate-700 shadow-2xl relative flex flex-col">
+            
+            <!-- PROGRESS BAR TOP OF CANVAS -->
+            <div class="w-full bg-slate-800 h-2.5 relative">
+                <div id="progressBar" class="bg-gradient-to-r from-blue-500 via-indigo-500 to-amber-400 h-2.5 w-0 transition-all duration-500"></div>
+            </div>
+
+            <!-- CANVAS SCREEN CONTAINER -->
+            <div class="relative w-full aspect-[16/9] max-h-[520px] bg-sky-950 overflow-hidden flex items-center justify-center">
+                <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+
+                <!-- GAME OVERLAY SCREENS -->
+
+                <!-- 1. START OVERLAY -->
+                <div id="startOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+                    <div class="max-w-md bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl space-y-4">
+                        <div class="inline-block p-4 bg-amber-500/10 rounded-full border border-amber-500/30 text-amber-400 mb-1">
+                            <i class="fa-solid fa-person-walking text-4xl animate-bounce"></i>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold font-game text-white">
+                            Ready for the Challenge?
+                            <span class="block text-xs text-slate-400 font-normal mt-1">¿Listo para el desafío de inglés?</span>
+                        </h2>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Walk past <strong>Prepa 11 UDG</strong> and solve unexpected real-life situations choosing between 
+                            <span class="text-amber-400 font-bold">"will"</span> and <span class="text-sky-400 font-bold">"am going to"</span>.
+                        </p>
+                        <p class="text-xs text-slate-400 italic bg-slate-800 p-2.5 rounded-lg border border-slate-700/60">
+                            Acompaña al estudiante por las calles de la Prepa 11 y responde adecuadamente a cada acontecimiento.
+                        </p>
+
+                        <button onclick="startGame()" class="w-full py-3.5 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-lg rounded-xl btn-glow flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play"></i> START GAME / INICIAR
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. QUESTION QUIZ MODAL OVERLAY -->
+                <div id="quizOverlay" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center p-4 z-20">
+                    <div class="w-full max-w-xl bg-slate-900 border-2 border-amber-500/50 p-5 sm:p-6 rounded-2xl shadow-2xl text-center space-y-4 animate-fade-in">
+                        
+                        <!-- Header badge -->
+                        <div class="inline-flex items-center space-x-2 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs px-3 py-1 rounded-full font-semibold">
+                            <i class="fa-solid fa-circle-question"></i>
+                            <span id="scenarioStepBadge">CHALLENGE 1 OF 4</span>
+                        </div>
+
+                        <!-- Question Title -->
+                        <div>
+                            <h3 id="quizTitleEn" class="text-xl sm:text-2xl font-bold font-game text-white">
+                                What can you do?
+                            </h3>
+                            <p id="quizTitleEs" class="text-xs sm:text-sm text-slate-400 italic">
+                                ¿Qué puedes hacer?
+                            </p>
+                        </div>
+
+                        <!-- Scenario Context Sentence Box -->
+                        <div class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl shadow-inner space-y-2">
+                            <p id="sentenceEn" class="text-lg sm:text-2xl font-bold text-amber-300 font-game tracking-wide">
+                                I <span class="underline underline-offset-4 decoration-amber-400 decoration-2">_______</span> move to the side.
+                            </p>
+                            <p id="sentenceEs" class="text-xs sm:text-sm text-slate-400 italic">
+                                (Me moveré a un lado)
+                            </p>
+                        </div>
+
+                        <!-- Options Buttons -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <button onclick="submitAnswer('will')" class="py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg rounded-xl btn-glow border border-blue-400/40 flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-bolt text-amber-300"></i>
+                                <span>will</span>
+                            </button>
+                            <button onclick="submitAnswer('am going to')" class="py-3 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-lg rounded-xl btn-glow border border-emerald-400/40 flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-calendar-check text-emerald-200"></i>
+                                <span>am going to</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. EXPLANATION FEEDBACK MODAL OVERLAY -->
+                <div id="feedbackOverlay" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4 z-20">
+                    <div id="feedbackCard" class="w-full max-w-xl bg-slate-900 border-2 p-5 sm:p-6 rounded-2xl shadow-2xl text-center space-y-4">
+                        
+                        <!-- Status icon -->
+                        <div id="feedbackIcon" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl shadow-lg">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+
+                        <h3 id="feedbackHeaderEn" class="text-2xl font-bold font-game text-white">
+                            EXCELLENT!
+                        </h3>
+
+                        <!-- Answer Explanation -->
+                        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl text-left space-y-2">
+                            <p id="explanationEn" class="text-sm sm:text-base font-semibold text-slate-100">
+                                We use "will" for instant, spontaneous decisions made right at the moment!
+                            </p>
+                            <p id="explanationEs" class="text-xs sm:text-sm text-slate-400 italic">
+                                Usamos "will" para decisiones espontáneas tomadas al momento.
+                            </p>
+                        </div>
+
+                        <button onclick="nextScenario()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-lg rounded-xl btn-glow flex items-center justify-center space-x-2">
+                            <span>CONTINUE / CONTINUAR</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4. FINAL GAME OVER SUMMARY SCREEN -->
+                <div id="summaryOverlay" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 z-20 overflow-y-auto">
+                    <div class="w-full max-w-2xl bg-slate-900 border-2 border-amber-500 p-6 rounded-2xl shadow-2xl my-auto text-center space-y-5">
+                        
+                        <div class="inline-block p-3 bg-amber-500/20 rounded-full text-amber-400 border border-amber-500/40">
+                            <i class="fa-solid fa-trophy text-4xl"></i>
+                        </div>
+
+                        <h2 class="text-2xl sm:text-3xl font-extrabold font-game text-white">
+                            CHALLENGE COMPLETED!
+                            <span class="block text-xs sm:text-sm text-slate-400 font-normal mt-1">¡Felicidades, has completado todos los escenarios!</span>
+                        </h2>
+
+                        <!-- Score card -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
+                                <p class="text-xs text-slate-400">Final Score / Puntaje</p>
+                                <p id="finalScoreVal" class="text-2xl sm:text-3xl font-black text-amber-400 font-game">400 / 400</p>
+                            </div>
+                            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
+                                <p class="text-xs text-slate-400">Accuracy / Aciertos</p>
+                                <p id="finalAccuracyVal" class="text-2xl sm:text-3xl font-black text-emerald-400 font-game">100%</p>
+                            </div>
+                        </div>
+
+                        <!-- Grammar Summary Recap Card -->
+                        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl text-left space-y-3 text-xs sm:text-sm">
+                            <h4 class="font-bold text-amber-400 uppercase tracking-wider text-center border-b border-slate-700 pb-2 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-book-open"></i> Grammar Rule Recap / Resumen Gramatical
+                            </h4>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="p-3 bg-slate-900/90 rounded-xl border-l-4 border-blue-500 space-y-1">
+                                    <p class="font-bold text-blue-300 flex items-center gap-1.5"><i class="fa-solid fa-bolt text-amber-300"></i> WILL</p>
+                                    <p class="text-slate-300 text-xs">• <strong>Spontaneous decisions:</strong> "I will move to the side!"</p>
+                                    <p class="text-slate-300 text-xs">• <strong>Instant emergency reactions:</strong> "I'll run!"</p>
+                                    <p class="text-slate-400 text-[11px] italic mt-1">(Decisiones espontáneas y reacciones inmediatas al momento)</p>
+                                </div>
+                                <div class="p-3 bg-slate-900/90 rounded-xl border-l-4 border-emerald-500 space-y-1">
+                                    <p class="font-bold text-emerald-300 flex items-center gap-1.5"><i class="fa-solid fa-calendar-check text-emerald-300"></i> AM GOING TO</p>
+                                    <p class="text-slate-300 text-xs">• <strong>Planned future actions:</strong> "I am going to bring an umbrella."</p>
+                                    <p class="text-slate-300 text-xs">• <strong>Intentions set in advance:</strong> "I am going to bring money next time!"</p>
+                                    <p class="text-slate-400 text-[11px] italic mt-1">(Planes futuros e intenciones decididas con anticipación)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="restartGame()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-lg rounded-xl btn-glow flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>PLAY AGAIN / REINICIAR JUEGO</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- TEACHER SETTINGS MODAL -->
+    <div id="settingsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+        <div class="w-full max-w-lg bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-sky-400"></i> Teacher Audio Settings
+                </h3>
+                <button onclick="toggleSettingsModal()" class="text-slate-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-300">
+                The game includes a <strong>built-in Web Audio API synthesizer</strong> that works out of the box. You can also upload your custom MP3 audio files for each scenario below:
+            </p>
+
+            <div class="space-y-3 text-xs">
+                <!-- Custom Audio 1 -->
+                <div class="bg-slate-800 p-2.5 rounded-lg border border-slate-700 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="font-semibold text-amber-300">1. Fast Car Sound Effect</p>
+                        <p class="text-[10px] text-slate-400">Default: Synth car engine zoom + tire screech</p>
+                    </div>
+                    <input type="file" id="audioInputCar" accept="audio/*" class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:bg-slate-700 file:text-amber-300 hover:file:bg-slate-600 w-44">
+                </div>
+
+                <!-- Custom Audio 2 -->
+                <div class="bg-slate-800 p-2.5 rounded-lg border border-slate-700 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="font-semibold text-amber-300">2. Thunder Sound Effect</p>
+                        <p class="text-[10px] text-slate-400">Default: Low rumble thunder synth</p>
+                    </div>
+                    <input type="file" id="audioInputThunder" accept="audio/*" class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:bg-slate-700 file:text-amber-300 hover:file:bg-slate-600 w-44">
+                </div>
+
+                <!-- Custom Audio 3 -->
+                <div class="bg-slate-800 p-2.5 rounded-lg border border-slate-700 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="font-semibold text-amber-300">3. Aggressive Dog Sound Effect</p>
+                        <p class="text-[10px] text-slate-400">Default: Modulated canine bark synth</p>
+                    </div>
+                    <input type="file" id="audioInputDog" accept="audio/*" class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:bg-slate-700 file:text-amber-300 hover:file:bg-slate-600 w-44">
+                </div>
+
+                <!-- Custom Audio 4 -->
+                <div class="bg-slate-800 p-2.5 rounded-lg border border-slate-700 flex items-center justify-between gap-2">
+                    <div>
+                        <p class="font-semibold text-amber-300">4. Candy Store Chime Sound Effect</p>
+                        <p class="text-[10px] text-slate-400">Default: Store bell chime melody synth</p>
+                    </div>
+                    <input type="file" id="audioInputIceCream" accept="audio/*" class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:bg-slate-700 file:text-amber-300 hover:file:bg-slate-600 w-44">
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button onclick="toggleSettingsModal()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg text-xs">
+                    Save & Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER CREDITS -->
+    <footer class="w-full bg-slate-950 border-t border-slate-800 py-3 px-4 text-center">
+        <p class="text-xs sm:text-sm text-slate-400 font-medium tracking-wide">
+            Elaborado para Prepa 11 - Generación 2026-D; Teacher: Cristian Vargas Díaz
+        </p>
+    </footer>
+
+    <script>
+        let audioCtx = null;
+        let isMuted = false;
+
+        const customAudio = {
+            car: null,
+            thunder: null,
+            dog: null,
+            iceCream: null
+        };
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function toggleAudioMute() {
+            isMuted = !isMuted;
+            const icon = document.getElementById('audioIcon');
+            if (isMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-rose-400';
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-amber-400';
+            }
+        }
+
+        // Synth Sound 1: Fast Car Zoom & Tire Screech
+        function playCarSound() {
+            if (isMuted) return;
+            if (customAudio.car) { customAudio.car.play(); return; }
+
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const now = ctx.currentTime;
+            
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            
+            osc.frequency.setValueAtTime(340, now);
+            osc.frequency.exponentialRampToValueAtTime(75, now + 1.4);
+
+            gain.gain.setValueAtTime(0.01, now);
+            gain.gain.linearRampToValueAtTime(0.35, now + 0.3);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+            const bufferSize = ctx.sampleRate * 0.6;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.value = 2400;
+            noiseFilter.Q.value = 5.0;
+
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.0, now);
+            noiseGain.gain.setValueAtTime(0.25, now + 0.4);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 1.4);
+            noise.start(now + 0.4);
+            noise.stop(now + 1.2);
+        }
+
+        // Synth Sound 2: Deep Thunder Rumble
+        function playThunderSound() {
+            if (isMuted) return;
+            if (customAudio.thunder) { customAudio.thunder.play(); return; }
+
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const now = ctx.currentTime;
+            const bufferSize = ctx.sampleRate * 2.0;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(500, now);
+            filter.frequency.exponentialRampToValueAtTime(50, now + 1.8);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.6, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            noise.start(now);
+            noise.stop(now + 2.0);
+        }
+
+        // Synth Sound 3: Rabid Dog Barking
+        function playDogSound() {
+            if (isMuted) return;
+            if (customAudio.dog) { customAudio.dog.play(); return; }
+
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const barks = [0, 0.22, 0.44, 0.68];
+            barks.forEach(delay => {
+                const now = ctx.currentTime + delay;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(480, now);
+                osc.frequency.exponentialRampToValueAtTime(160, now + 0.16);
+
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.18);
+            });
+        }
+
+        // Synth Sound 4: Candy Shop Bell Chime Melody
+        function playIceCreamSound() {
+            if (isMuted) return;
+            if (customAudio.iceCream) { customAudio.iceCream.play(); return; }
+
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const notes = [
+                { note: 523.25, duration: 0.18 }, // C5
+                { note: 659.25, duration: 0.18 }, // E5
+                { note: 783.99, duration: 0.18 }, // G5
+                { note: 1046.50, duration: 0.35 },// C6
+                { note: 880.00, duration: 0.20 }, // A5
+                { note: 1046.50, duration: 0.45 } // C6
+            ];
+
+            let startTime = ctx.currentTime;
+            notes.forEach(item => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.value = item.note;
+
+                gain.gain.setValueAtTime(0.2, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + item.duration);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(startTime);
+                osc.stop(startTime + item.duration);
+
+                startTime += item.duration + 0.04;
+            });
+        }
+
+        function playSuccessChime() {
+            if (isMuted) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.setValueAtTime(659.25, now + 0.12);
+            osc.frequency.setValueAtTime(783.99, now + 0.24);
+
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.55);
+        }
+
+        function playErrorBuzz() {
+            if (isMuted) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(140, now);
+
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.35);
+        }
+
+        const scenarios = [
+            {
+                id: 1,
+                titleEn: "What can you do?",
+                titleEs: "¿Qué puedes hacer?",
+                sentenceEn: 'I _______ move to the side.',
+                sentenceEs: '(Me moveré a un lado)',
+                options: ['will', 'am going to'],
+                correct: 'will',
+                explanationEn: 'We use "will" because moving to the side is a spontaneous decision made right at the moment when the car arrives!',
+                explanationEs: 'Usamos "will" porque moverte a un lado es una decisión espontánea tomada al instante cuando aparece el coche.',
+                triggerSound: playCarSound
+            },
+            {
+                id: 2,
+                titleEn: "What can you do?",
+                titleEs: "¿Qué puedes hacer?",
+                sentenceEn: 'I _______ bring an umbrella next time.',
+                sentenceEs: '(Traeré un paraguas la próxima vez)',
+                options: ['will', 'am going to'],
+                correct: 'am going to',
+                explanationEn: 'We use "am going to" because bringing an umbrella next time is a planned decision/intention for the future!',
+                explanationEs: 'Usamos "am going to" porque traer un paraguas la próxima vez es una decisión o plan futuro considerado con anticipación.',
+                triggerSound: playThunderSound
+            },
+            {
+                id: 3,
+                titleEn: "What can you do?",
+                titleEs: "¿Qué puedes hacer?",
+                sentenceEn: "I' _______ run!",
+                sentenceEs: '(¡Correré!)',
+                options: ['will', 'am going to'],
+                correct: 'will',
+                explanationEn: 'We use "will" (I\'ll run!) for immediate emergency reactions in sudden danger situations!',
+                explanationEs: 'Usamos "will" (I\'ll run!) para reacciones de emergencia inmediatas en situaciones repentinas.',
+                triggerSound: playDogSound
+            },
+            {
+                id: 4,
+                titleEn: "What can you do?",
+                titleEs: "¿Qué puedes hacer?",
+                sentenceEn: "I' _______ bring money next time!",
+                sentenceEs: '(¡Traeré dinero la próxima vez!)',
+                options: ['will', 'am going to'],
+                correct: 'am going to',
+                explanationEn: 'We use "am going to" (I\'m going to...) because it expresses a clear future plan/intention decided for the next occasion!',
+                explanationEs: 'Usamos "am going to" (I\'m going to...) porque expresa un plan o intención futura para la próxima ocasión.',
+                triggerSound: playIceCreamSound
+            }
+        ];
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let currentScenarioIndex = 0;
+        let score = 0;
+        let gameState = 'START'; // START, WALKING, EVENT, QUIZ, FEEDBACK, SUMMARY
+        let worldOffset = 0;
+        let eventTimer = 0;
+
+        // Entities
+        const player = {
+            x: 130,
+            y: 0,
+            width: 44,
+            height: 82,
+            frame: 0,
+            isScared: false,
+            isThinking: false,
+            emptyPockets: false
+        };
+
+        const car = {
+            x: 900,
+            speed: 0
+        };
+
+        const dog = {
+            x: 900,
+            speed: 0
+        };
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function startGame() {
+            getAudioContext();
+            score = 0;
+            currentScenarioIndex = 0;
+            worldOffset = 0;
+            document.getElementById('startOverlay').classList.add('hidden');
+            document.getElementById('summaryOverlay').classList.add('hidden');
+            updateScoreUI();
+            startWalkPhase();
+        }
+
+        function startWalkPhase() {
+            gameState = 'WALKING';
+            player.isScared = false;
+            player.isThinking = false;
+            player.emptyPockets = false;
+            
+            car.x = canvas.width + 300;
+            dog.x = canvas.width + 300;
+            eventTimer = 0;
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const groundY = canvas.height - 75;
+            player.y = groundY - player.height;
+
+            // Render World Graphics
+            drawSkyAndClouds();
+            drawBuildings(groundY);
+            drawSidewalkAndStreet(groundY);
+
+            // State Logic
+            if (gameState === 'WALKING') {
+                worldOffset += 2.6;
+                player.frame += 0.22;
+
+                const targetOffset = (currentScenarioIndex + 1) * 450;
+                if (worldOffset >= targetOffset) {
+                    gameState = 'EVENT';
+                    triggerCurrentScenarioEvent();
+                }
+            } else if (gameState === 'EVENT') {
+                eventTimer += 1;
+                updateCurrentScenarioEvent(groundY);
+
+                // Run event preview animation for ~4.5 seconds (270 frames at 60fps)
+                if (eventTimer >= 270) {
+                    openQuizModal();
+                }
+            }
+
+            // Scenario Visual Entities
+            if (currentScenarioIndex === 0 && (gameState === 'EVENT' || gameState === 'QUIZ')) {
+                drawCar(groundY);
+            }
+            if (currentScenarioIndex === 1 && (gameState === 'EVENT' || gameState === 'QUIZ')) {
+                drawStormCloud();
+            }
+            if (currentScenarioIndex === 2 && (gameState === 'EVENT' || gameState === 'QUIZ')) {
+                drawDog(groundY);
+            }
+            if (currentScenarioIndex === 3 && (gameState === 'EVENT' || gameState === 'QUIZ')) {
+                drawCandyStoreSparkles(groundY);
+            }
+
+            drawPlayerCharacter();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function drawSkyAndClouds() {
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            if (currentScenarioIndex === 1 && (gameState === 'EVENT' || gameState === 'QUIZ')) {
+                skyGradient.addColorStop(0, '#0f172a');
+                skyGradient.addColorStop(1, '#312e81');
+            } else {
+                skyGradient.addColorStop(0, '#38bdf8');
+                skyGradient.addColorStop(1, '#bae6fd');
+            }
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Distant decorative clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+            const cloudX = (120 - worldOffset * 0.18) % (canvas.width + 300);
+            drawCloudShape(cloudX, 45, 38);
+            drawCloudShape(cloudX + 380, 65, 48);
+        }
+
+        function drawCloudShape(x, y, radius) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.arc(x + radius * 0.7, y - radius * 0.2, radius * 0.8, 0, Math.PI * 2);
+            ctx.arc(x + radius * 1.4, y, radius * 0.7, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawBuildings(groundY) {
+            ctx.save();
+
+            // Scenario 1, 2, 3: Prepa 11 UDG Building
+            // Scenario 4: Candy Store / Tienda de Dulces
+            if (currentScenarioIndex < 3 || worldOffset < 1100) {
+                const schoolX = 100 - (worldOffset % 1200);
+
+                // PREPA 11 UDG CAMPUS BUILDING
+                ctx.fillStyle = '#1e3a8a'; // UDG Navy Blue
+                ctx.fillRect(schoolX, groundY - 220, 680, 220);
+
+                // Gold Trim
+                ctx.fillStyle = '#d97706';
+                ctx.fillRect(schoolX, groundY - 220, 680, 16);
+                ctx.fillRect(schoolX, groundY - 12, 680, 12);
+
+                // Brick Pattern Detail
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+                for (let bY = groundY - 200; bY < groundY - 20; bY += 16) {
+                    for (let bX = schoolX; bX < schoolX + 680; bX += 32) {
+                        ctx.fillRect(bX + ((bY % 32) ? 0 : 16), bY, 28, 12);
+                    }
+                }
+
+                // Main Windows
+                ctx.fillStyle = '#93c5fd';
+                for (let r = 0; r < 2; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        ctx.fillRect(schoolX + 35 + c * 80, groundY - 180 + r * 65, 52, 45);
+                        ctx.strokeStyle = '#1e293b';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(schoolX + 35 + c * 80, groundY - 180 + r * 65, 52, 45);
+                    }
+                }
+
+                // Entrance Arch
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(schoolX + 280, groundY - 95, 130, 95);
+
+                // OFFICIAL SIGNAGE BANNER
+                ctx.fillStyle = '#f59e0b';
+                ctx.fillRect(schoolX + 180, groundY - 212, 340, 42);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(schoolX + 180, groundY - 212, 340, 42);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 20px Fredoka, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('PREPA 11 - UDG', schoolX + 350, groundY - 190);
+
+                ctx.font = 'bold 10px Outfit, sans-serif';
+                ctx.fillStyle = '#1e293b';
+                ctx.fillText('UNIVERSIDAD DE GUADALAJARA', schoolX + 350, groundY - 176);
+
+                // UDG Crest Emblem
+                ctx.beginPath();
+                ctx.arc(schoolX + 205, groundY - 191, 14, 0, Math.PI * 2);
+                ctx.fillStyle = '#1e3a8a';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillText('U', schoolX + 205, groundY - 187);
+
+            } else {
+                // SCENARIO 4: DISTINCT CANDY STORE BUILDING ("TIENDA DE DULCES")
+                const storeX = Math.max(80, 600 - (worldOffset - 1200));
+
+                // Main Store Wall (Turquoise / Teal)
+                ctx.fillStyle = '#0d9488';
+                ctx.fillRect(storeX, groundY - 240, 600, 240);
+
+                // Pink Magenta Frame Trim
+                ctx.fillStyle = '#ec4899';
+                ctx.fillRect(storeX, groundY - 240, 600, 18);
+                ctx.fillRect(storeX, groundY - 12, 600, 12);
+
+                // 3D Red & White Striped Canvas Awning
+                const awningY = groundY - 170;
+                const stripeWidth = 25;
+                for (let i = 0; i < 24; i++) {
+                    ctx.fillStyle = (i % 2 === 0) ? '#ef4444' : '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(storeX + i * stripeWidth, awningY - 40);
+                    ctx.lineTo(storeX + (i + 1) * stripeWidth, awningY - 40);
+                    ctx.lineTo(storeX + (i + 0.8) * stripeWidth, awningY + 15);
+                    ctx.lineTo(storeX + (i - 0.2) * stripeWidth, awningY + 15);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = '#b91c1c';
+                    ctx.stroke();
+                }
+
+                // GLOWING MARQUEE CANDY SHOP SIGNBOARD
+                ctx.fillStyle = '#fef08a';
+                ctx.fillRect(storeX + 110, groundY - 232, 380, 48);
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(storeX + 110, groundY - 232, 380, 48);
+
+                ctx.fillStyle = '#be123c';
+                ctx.font = 'bold 22px Fredoka, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('🍭 SWEET CANDY SHOP 🍬', storeX + 300, groundY - 208);
+
+                ctx.fillStyle = '#047857';
+                ctx.font = 'bold 11px Outfit, sans-serif';
+                ctx.fillText('TIENDA DE DULCES Y DELICIAS', storeX + 300, groundY - 192);
+
+                // LARGE STOREFRONT DISPLAY WINDOW
+                ctx.fillStyle = '#e0f2fe';
+                ctx.fillRect(storeX + 60, groundY - 140, 300, 120);
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(storeX + 60, groundY - 140, 300, 120);
+
+                // Display Window Shelves & Candy Jars
+                ctx.fillStyle = '#f59e0b'; // Shelf 1
+                ctx.fillRect(storeX + 70, groundY - 80, 280, 8);
+
+                // Candy Jars on Shelf
+                drawCandyJar(storeX + 90, groundY - 115, '#ef4444', 'Red Sweets');
+                drawCandyJar(storeX + 150, groundY - 115, '#3b82f6', 'Blue Gummies');
+                drawCandyJar(storeX + 210, groundY - 115, '#10b981', 'Green Mints');
+                drawCandyJar(storeX + 270, groundY - 115, '#f59e0b', 'Lollipops');
+
+                // Giant Swirl Lollipop Decal
+                drawLollipop(storeX + 330, groundY - 110, 22);
+
+                // Glass Store Door
+                ctx.fillStyle = 'rgba(186, 230, 253, 0.7)';
+                ctx.fillRect(storeX + 410, groundY - 140, 120, 128);
+                ctx.strokeStyle = '#0284c7';
+                ctx.strokeRect(storeX + 410, groundY - 140, 120, 128);
+
+                // "OPEN" Sign
+                ctx.fillStyle = '#22c55e';
+                ctx.fillRect(storeX + 445, groundY - 110, 50, 22);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillText('OPEN', storeX + 470, groundY - 95);
+            }
+
+            ctx.restore();
+        }
+
+        function drawCandyJar(x, y, color, label) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.fillRect(x, y, 35, 35);
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(x, y, 35, 35);
+
+            // Candy balls inside jar
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x + 10, y + 12, 5, 0, Math.PI * 2);
+            ctx.arc(x + 24, y + 12, 5, 0, Math.PI * 2);
+            ctx.arc(x + 17, y + 24, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawLollipop(x, y, radius) {
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + 40);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ec4899';
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#fef08a';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x, y, radius * 0.6, 0, Math.PI * 1.5);
+            ctx.stroke();
+        }
+
+        function drawSidewalkAndStreet(groundY) {
+            // Sidewalk
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(0, groundY, canvas.width, 35);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(0, groundY, canvas.width, 4);
+
+            // Sidewalk tiles
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 1.5;
+            const tileStep = 60;
+            const tileOffset = (worldOffset) % tileStep;
+            for (let x = -tileOffset; x < canvas.width; x += tileStep) {
+                ctx.beginPath();
+                ctx.moveTo(x, groundY);
+                ctx.lineTo(x - 20, groundY + 35);
+                ctx.stroke();
+            }
+
+            // Asphalt Street
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, groundY + 35, canvas.width, 45);
+
+            // Yellow Road Divider Lines
+            ctx.fillStyle = '#f59e0b';
+            const lineStep = 80;
+            const lineOffset = (worldOffset * 1.2) % lineStep;
+            for (let x = -lineOffset; x < canvas.width; x += lineStep) {
+                ctx.fillRect(x, groundY + 55, 45, 6);
+            }
+        }
+
+        function drawPlayerCharacter() {
+            ctx.save();
+            const px = player.x;
+            const py = player.y;
+
+            const bounce = (gameState === 'WALKING') ? Math.sin(player.frame * 2) * 4 : 0;
+            const drawY = py + bounce;
+
+            // Head
+            ctx.fillStyle = '#fca5a5';
+            ctx.beginPath();
+            ctx.arc(px + 22, drawY + 18, 16, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hair
+            ctx.fillStyle = '#451a03';
+            ctx.beginPath();
+            ctx.arc(px + 22, drawY + 12, 17, Math.PI, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes & Expression
+            ctx.fillStyle = '#0f172a';
+            if (player.isScared) {
+                // Wide Panic Eyes
+                ctx.beginPath();
+                ctx.arc(px + 17, drawY + 16, 4.5, 0, Math.PI * 2);
+                ctx.arc(px + 27, drawY + 16, 4.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Open Mouth
+                ctx.beginPath();
+                ctx.arc(px + 22, drawY + 24, 4.5, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                ctx.fillRect(px + 16, drawY + 15, 3, 4);
+                ctx.fillRect(px + 25, drawY + 15, 3, 4);
+
+                ctx.beginPath();
+                ctx.arc(px + 22, drawY + 20, 5, 0, Math.PI);
+                ctx.stroke();
+            }
+
+            // Torso Uniform Polo Shirt
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(px + 10, drawY + 34, 24, 26);
+            ctx.fillStyle = '#1e3a8a'; // Blue Collar
+            ctx.fillRect(px + 10, drawY + 34, 24, 4);
+
+            // Backpack
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(px + 2, drawY + 36, 10, 20);
+
+            // Arms
+            ctx.strokeStyle = '#fca5a5';
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            if (player.isScared) {
+                // Raised Panic Arms
+                ctx.beginPath();
+                ctx.moveTo(px + 10, drawY + 38);
+                ctx.lineTo(px + 2, drawY + 25);
+                ctx.moveTo(px + 34, drawY + 38);
+                ctx.lineTo(px + 42, drawY + 25);
+                ctx.stroke();
+            } else {
+                const armAngle = Math.sin(player.frame) * 10;
+                ctx.beginPath();
+                ctx.moveTo(px + 12, drawY + 38);
+                ctx.lineTo(px + 12 - armAngle, drawY + 52);
+                ctx.moveTo(px + 32, drawY + 38);
+                ctx.lineTo(px + 32 + armAngle, drawY + 52);
+                ctx.stroke();
+            }
+
+            // Pants & Legs
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 6;
+            const legSwing = (gameState === 'WALKING') ? Math.sin(player.frame) * 12 : 0;
+            ctx.beginPath();
+            ctx.moveTo(px + 16, drawY + 60);
+            ctx.lineTo(px + 16 - legSwing, drawY + 80);
+            ctx.moveTo(px + 28, drawY + 60);
+            ctx.lineTo(px + 28 + legSwing, drawY + 80);
+            ctx.stroke();
+
+            // SCENARIO 4 SPECIAL VISUAL: Pockets Turned Inside Out
+            if (player.emptyPockets) {
+                // White pocket tabs hanging out
+                ctx.fillStyle = '#f8fafc';
+                ctx.beginPath();
+                ctx.arc(px + 8, drawY + 62, 5, 0, Math.PI * 2);
+                ctx.arc(px + 36, drawY + 62, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Dust/Lint particles
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillRect(px + 6, drawY + 70, 2, 2);
+                ctx.fillRect(px + 38, drawY + 72, 2, 2);
+
+                // Thought Bubble: Empty Wallet
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(px + 48, drawY - 12, 16, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillStyle = '#0f172a';
+                ctx.fillText('💸', px + 41, drawY - 7);
+            }
+
+            ctx.restore();
+        }
+
+        function triggerCurrentScenarioEvent() {
+            player.isScared = true;
+            player.isThinking = true;
+            if (currentScenarioIndex === 3) {
+                player.emptyPockets = true;
+            }
+
+            const sc = scenarios[currentScenarioIndex];
+            if (sc.triggerSound) {
+                sc.triggerSound();
+            }
+
+            canvas.classList.add('animate-shake');
+            setTimeout(() => {
+                canvas.classList.remove('animate-shake');
+            }, 600);
+        }
+
+        function updateCurrentScenarioEvent(groundY) {
+            // 1. Fast Car
+            if (currentScenarioIndex === 0) {
+                car.x -= 20;
+                if (car.x < player.x + 50) {
+                    car.x = player.x + 50;
+                }
+            }
+            // 3. Rabid Dog
+            else if (currentScenarioIndex === 2) {
+                if (dog.x > player.x + 85) {
+                    dog.x -= 7;
+                }
+            }
+        }
+
+        // Scenario 1: Red Car + "VROOOOM!!", "SCREECH!!"
+        function drawCar(groundY) {
+            ctx.save();
+            const cx = car.x;
+            const cy = groundY + 5;
+
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(cx, cy, 140, 35);
+            ctx.fillRect(cx + 30, cy - 20, 75, 25);
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(cx + 35, cy - 16, 30, 16);
+            ctx.fillRect(cx + 70, cy - 16, 30, 16);
+
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.arc(cx + 30, cy + 35, 14, 0, Math.PI * 2);
+            ctx.arc(cx + 110, cy + 35, 14, 0, Math.PI * 2);
+            ctx.fill();
+
+            // ONOMATOPOEIA FX: "VROOOOM!!", "SCREECH!!"
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 20px Fredoka, sans-serif';
+            ctx.fillText('VROOOOM!!', cx - 40, cy - 25);
+
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 16px Fredoka, sans-serif';
+            ctx.fillText('SCREECH!!', cx + 20, cy - 35);
+
+            ctx.restore();
+        }
+
+        // Scenario 2: Lightning Storm + "CRACK-BOOM!!", "FLASH!!"
+        function drawStormCloud() {
+            ctx.save();
+            ctx.fillStyle = '#1e1b4b';
+            drawCloudShape(canvas.width / 2 - 40, 40, 70);
+
+            if (Math.random() < 0.2) {
+                ctx.strokeStyle = '#fef08a';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width / 2 + 10, 80);
+                ctx.lineTo(canvas.width / 2 - 12, 130);
+                ctx.lineTo(canvas.width / 2 + 18, 140);
+                ctx.lineTo(canvas.width / 2 - 8, 195);
+                ctx.stroke();
+
+                // ONOMATOPOEIA FX: "CRACK-BOOM!!"
+                ctx.fillStyle = '#fef08a';
+                ctx.font = 'bold 22px Fredoka, sans-serif';
+                ctx.fillText('CRACK-BOOM!!', canvas.width / 2 + 30, 140);
+            }
+            ctx.restore();
+        }
+
+        // Scenario 3: Angry Dog + "WOOF! WOOF!!", "GRRRR!!"
+        function drawDog(groundY) {
+            ctx.save();
+            const dx = dog.x;
+            const dy = groundY - 35;
+
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(dx, dy + 10, 45, 20);
+            ctx.fillRect(dx - 12, dy, 20, 20);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(dx - 12, dy + 10);
+            ctx.lineTo(dx - 18, dy + 15);
+            ctx.lineTo(dx - 12, dy + 18);
+            ctx.fill();
+
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(dx + 5, dy + 30);
+            ctx.lineTo(dx + 2, dy + 42);
+            ctx.moveTo(dx + 38, dy + 30);
+            ctx.lineTo(dx + 35, dy + 42);
+            ctx.stroke();
+
+            // ONOMATOPOEIA FX: "WOOF! WOOF!!", "GRRRR!!"
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 18px Fredoka, sans-serif';
+            ctx.fillText('WOOF! WOOF!!', dx - 40, dy - 10);
+
+            ctx.fillStyle = '#b91c1c';
+            ctx.font = 'bold 14px Fredoka, sans-serif';
+            ctx.fillText('GRRRR!!', dx + 10, dy - 22);
+
+            ctx.restore();
+        }
+
+        // Scenario 4: Candy Store Sparkles + "DING-DING!!", "DELICIOUS!!"
+        function drawCandyStoreSparkles(groundY) {
+            ctx.save();
+            const sx = player.x + 120;
+            const sy = groundY - 140;
+
+            // ONOMATOPOEIA FX: "DING-DING!!", "DELICIOUS!!"
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 20px Fredoka, sans-serif';
+            ctx.fillText('DING-DING!! 🔔', sx, sy - 20);
+
+            ctx.fillStyle = '#ec4899';
+            ctx.font = 'bold 16px Fredoka, sans-serif';
+            ctx.fillText('DELICIOUS!! 🍬', sx + 20, sy + 10);
+
+            ctx.restore();
+        }
+
+        function openQuizModal() {
+            gameState = 'QUIZ';
+            const sc = scenarios[currentScenarioIndex];
+
+            document.getElementById('scenarioStepBadge').innerText = `CHALLENGE ${sc.id} OF 4`;
+            document.getElementById('quizTitleEn').innerText = sc.titleEn;
+            document.getElementById('quizTitleEs').innerText = sc.titleEs;
+            document.getElementById('sentenceEn').innerHTML = sc.sentenceEn.replace('_______', '<span class="underline underline-offset-4 decoration-amber-400 decoration-4 text-amber-300">_______</span>');
+            document.getElementById('sentenceEs').innerText = sc.sentenceEs;
+
+            document.getElementById('quizOverlay').classList.remove('hidden');
+        }
+
+        function submitAnswer(selectedOption) {
+            document.getElementById('quizOverlay').classList.add('hidden');
+            gameState = 'FEEDBACK';
+
+            const sc = scenarios[currentScenarioIndex];
+            const isCorrect = (selectedOption === sc.correct);
+
+            const feedbackCard = document.getElementById('feedbackCard');
+            const feedbackIcon = document.getElementById('feedbackIcon');
+            const feedbackHeaderEn = document.getElementById('feedbackHeaderEn');
+            const explanationEn = document.getElementById('explanationEn');
+            const explanationEs = document.getElementById('explanationEs');
+
+            if (isCorrect) {
+                score += 100;
+                playSuccessChime();
+                feedbackCard.className = 'w-full max-w-xl bg-slate-900 border-2 border-emerald-500 p-6 rounded-2xl shadow-2xl text-center space-y-4';
+                feedbackIcon.className = 'w-16 h-16 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg';
+                feedbackIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                feedbackHeaderEn.innerHTML = 'EXCELLENT! <span class="block text-xs text-emerald-400 font-normal mt-0.5">¡Excelente trabajo!</span>';
+            } else {
+                playErrorBuzz();
+                feedbackCard.className = 'w-full max-w-xl bg-slate-900 border-2 border-rose-500 p-6 rounded-2xl shadow-2xl text-center space-y-4';
+                feedbackIcon.className = 'w-16 h-16 mx-auto rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center text-3xl shadow-lg';
+                feedbackIcon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                feedbackHeaderEn.innerHTML = 'NOT QUITE! <span class="block text-xs text-rose-400 font-normal mt-0.5">¡Casi! Revisa la regla gramatical:</span>';
+            }
+
+            explanationEn.innerText = sc.explanationEn;
+            explanationEs.innerText = sc.explanationEs;
+
+            updateScoreUI();
+            document.getElementById('feedbackOverlay').classList.remove('hidden');
+        }
+
+        function nextScenario() {
+            document.getElementById('feedbackOverlay').classList.add('hidden');
+            currentScenarioIndex++;
+
+            if (currentScenarioIndex < scenarios.length) {
+                startWalkPhase();
+            } else {
+                showFinalSummary();
+            }
+        }
+
+        function updateScoreUI() {
+            document.getElementById('scoreText').innerText = `${score} / 400`;
+            const percent = (currentScenarioIndex / 4) * 100;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+        }
+
+        function showFinalSummary() {
+            gameState = 'SUMMARY';
+            document.getElementById('progressBar').style.width = `100%`;
+            document.getElementById('finalScoreVal').innerText = `${score} / 400`;
+            const accuracy = Math.round((score / 400) * 100);
+            document.getElementById('finalAccuracyVal').innerText = `${accuracy}%`;
+            document.getElementById('summaryOverlay').classList.remove('hidden');
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function bindAudioInput(elementId, audioKey) {
+            const input = document.getElementById(elementId);
+            if (!input) return;
+            input.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    customAudio[audioKey] = new Audio(url);
+                }
+            });
+        }
+
+        bindAudioInput('audioInputCar', 'car');
+        bindAudioInput('audioInputThunder', 'thunder');
+        bindAudioInput('audioInputDog', 'dog');
+        bindAudioInput('audioInputIceCream', 'iceCream');
+
+        window.onload = function () {
+            requestAnimationFrame(gameLoop);
+        };
+    </script>
+</body>
+</html>
